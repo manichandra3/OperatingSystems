@@ -1,0 +1,3 @@
+!     
+The number of non-alphabetic characters are: 6
+Opposite Case: Hello! This is a test fileW

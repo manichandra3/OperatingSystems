@@ -1,0 +1,6 @@
+# ninja log v5
+4	710	1706378852430624699	CMakeFiles/Dummy.dir/main.cpp.o	e519ffd64bb667a4
+710	872	1706378852595281068	Dummy	ffbc77aa5082867f
+1	361	1706379522613658639	CMakeFiles/Dummy.dir/exec1.c.o	8c01bb58c99a3b1d
+0	362	1706379522613651347	CMakeFiles/Dummy.dir/main.c.o	9aa4b5239986321f
+1	362	1706379522613647764	CMakeFiles/Dummy.dir/exec2.c.o	5a8fef8b10a9812
