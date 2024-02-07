@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
       break;
     case '3':
       // function to perform SRBF.
+      SRBF(processtable, PROCESS_COUNT);
       break;
     default:
       printf("Invalid Input!\n");
