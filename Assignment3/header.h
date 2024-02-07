@@ -31,6 +31,7 @@ void PrintStatistics(Process *processtable, float avgWait, float avgTurn,
 
 // IMPLEMENTATIONS
 void FCFS(Process *processtable, int PROCESS_COUNT) {
+  CURRENT_TIME = 0;
   // keeps track of sum of wait times
   float sum = 0;
   // keeps track of sum of turnaround times
@@ -40,7 +41,8 @@ void FCFS(Process *processtable, int PROCESS_COUNT) {
       processInfoArray[i].startTime = CURRENT_TIME;
       CURRENT_TIME += processtable[i].cpuburst;
       processtable[i].wait = 0;
-      processtable[i].turnaround += processtable[i].cpuburst;
+      processtable[i].turnaround += CURRENT_TIME + 1;
+      sumT += processtable[i].turnaround;
       processInfoArray[i].endTime = CURRENT_TIME; // First process ends
     } else {
       processtable[i].wait =
@@ -66,6 +68,7 @@ void FCFS(Process *processtable, int PROCESS_COUNT) {
 }
 
 void RR(Process *processtable, int PROCESS_COUNT, int quantum) {
+  CURRENT_TIME = 0;
   float sum = 0;
   float sumT = 0;
   unsigned int index = 0;
@@ -137,6 +140,7 @@ void RR(Process *processtable, int PROCESS_COUNT, int quantum) {
 }
 
 void SRBF(Process *processtable, int PROCESS_COUNT) {
+  CURRENT_TIME = 0;
   float sum_wait = 0;
   float sum_turnaround = 0;
   int current_time = 0;
