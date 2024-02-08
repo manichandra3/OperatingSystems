@@ -143,59 +143,42 @@ void SRBF(Process *processtable, int PROCESS_COUNT) {
   CURRENT_TIME = 0;
   float sum_wait = 0;
   float sum_turnaround = 0;
-  int current_time = 0;
-  int completed_processes = 0;
+  int completed = 0;
   bool isComplete[PROCESS_COUNT]; // Track completion status of each process
   for (int i = 0; i < PROCESS_COUNT; i++) {
     isComplete[i] = false;
+    processInfoArray[i].remainingBurst = processtable[i].cpuburst;
   }
 
-  while (completed_processes < PROCESS_COUNT) {
-    int shortest_index = -1;
-    int shortest_burst = INT_MAX;
+  while (completed < PROCESS_COUNT) {
+    int index = -1;
+    int shortest = INT_MAX;
 
-    // Find the process with the shortest remaining burst time
+    // Find process with shortest remaining burst time
     for (int i = 0; i < PROCESS_COUNT; i++) {
-      if (!isComplete[i] && processtable[i].arrival <= current_time &&
-          processtable[i].cpuburst < shortest_burst) {
-        shortest_index = i;
-        shortest_burst = processtable[i].cpuburst;
-      }
-    }
-
-    if (shortest_index != -1) { // A process is found to execute
-      Process *current_process = &processtable[shortest_index];
-      printf("[%d-%d]\t%s\tRunning\n", current_time,
-             current_time + current_process->cpuburst, current_process->name);
-
-      // Update waiting and turnaround times
-      current_process->wait = current_time - current_process->arrival;
-      current_process->turnaround =
-          current_process->wait + current_process->cpuburst;
-      sum_wait += current_process->wait;
-      sum_turnaround += current_process->turnaround;
-
-      // Update current time and completion status
-      current_time += current_process->cpuburst;
-      isComplete[shortest_index] = true;
-      completed_processes++;
-    } else {
-      // If no process is ready to execute, move time forward to the next
-      // arrival
-      int next_arrival = INT_MAX;
-      for (int i = 0; i < PROCESS_COUNT; i++) {
-        if (!isComplete[i] && processtable[i].arrival < next_arrival) {
-          next_arrival = processtable[i].arrival;
+      if (processtable[i].arrival <= CURRENT_TIME && !isComplete[i]) {
+        if (processInfoArray[i].remainingBurst < shortest) {
+          index = i;
+          shortest = processInfoArray[i].remainingBurst;
         }
       }
-      current_time = next_arrival;
+    }
+
+    if (index != -1) {
+      processInfoArray[index].remainingBurst -= 1;
+      CURRENT_TIME++;
+      printf("%s at %d\n", processtable[index].name, CURRENT_TIME);
+
+      // Check if the process is completed
+      if (processInfoArray[index].remainingBurst == 0) {
+        completed++;
+        isComplete[index] = true;
+      }
+    } else {
+      // If no process is available, move time forward
+      CURRENT_TIME++;
     }
   }
-
-  // Calculate and print average waiting and turnaround times
-  float avg_wait = sum_wait / PROCESS_COUNT;
-  float avg_turnaround = sum_turnaround / PROCESS_COUNT;
-  PrintStatistics(processtable, avg_wait, avg_turnaround, PROCESS_COUNT, 3);
 }
 
 void PrintStatistics(Process *processtable, float avgWait, float avgTurn,
