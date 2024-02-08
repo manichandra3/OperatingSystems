@@ -37,6 +37,10 @@ void FCFS(Process *processtable, int PROCESS_COUNT) {
   // keeps track of sum of turnaround times
   float sumT = 0;
   for (int i = 0; i < PROCESS_COUNT; i++) {
+    processtable[i].wait = -1;
+    processtable[i].turnaround = -1;
+  }
+  for (int i = 0; i < PROCESS_COUNT; i++) {
     if (i == 0) {
       processInfoArray[i].startTime = CURRENT_TIME;
       CURRENT_TIME += processtable[i].cpuburst;
@@ -82,6 +86,8 @@ void RR(Process *processtable, int PROCESS_COUNT, int quantum) {
     }
     processInfoArray[i].processId = i;
     processInfoArray[i].remainingBurst = processtable[i].cpuburst;
+    processtable[i].wait = -1;
+    processtable[i].turnaround = -1;
   }
   printf("---------------------------------------------\n");
   printf("                    RR\n");
@@ -148,6 +154,8 @@ void SRBF(Process *processtable, int PROCESS_COUNT) {
   for (int i = 0; i < PROCESS_COUNT; i++) {
     isComplete[i] = false;
     processInfoArray[i].remainingBurst = processtable[i].cpuburst;
+    processtable[i].wait = -1;
+    processtable[i].turnaround = -1;
   }
 
   while (completed < PROCESS_COUNT) {
@@ -173,11 +181,20 @@ void SRBF(Process *processtable, int PROCESS_COUNT) {
       if (processInfoArray[index].remainingBurst == 0) {
         completed++;
         isComplete[index] = true;
+        processtable[index].turnaround =
+            CURRENT_TIME - processtable[index].arrival;
+      }
+      if (processtable[index].wait == -1) {
+        processtable[index].wait =
+            CURRENT_TIME - processtable[index].arrival - 1;
       }
     } else {
       // If no process is available, move time forward
       CURRENT_TIME++;
     }
+  }
+  for (int i = 0; i < PROCESS_COUNT; i++) {
+    printf("%s waited for %d\n", processtable[i].name, processtable[i].wait);
   }
 }
 

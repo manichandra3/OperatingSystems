@@ -73,3 +73,9 @@ p1 completed p3 has the next shortest burst time so p3 continues
 9-12
 p3 completed p2 is the only remaining process
 12-16
+Hence their wait times can also be infered
+wait times
+p0 0
+p1 3
+p2 12
+p3 9
