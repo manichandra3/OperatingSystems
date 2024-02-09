@@ -30,47 +30,50 @@ void PrintStatistics(Process *processtable, float avgWait, float avgTurn,
                      int count, int flag);
 
 // IMPLEMENTATIONS
+// FIRST COME FIRST SERVE
+// NON-PREEMPTIVE
 void FCFS(Process *processtable, int PROCESS_COUNT) {
-  CURRENT_TIME = 0;
-  // keeps track of sum of wait times
+  int CURRENT_TIME = 0;
   float sum = 0;
-  // keeps track of sum of turnaround times
   float sumT = 0;
+  unsigned int completed = 0;
+  bool isComplete[PROCESS_COUNT];
+
+  // Initialize isComplete array
   for (int i = 0; i < PROCESS_COUNT; i++) {
-    processtable[i].wait = -1;
-    processtable[i].turnaround = -1;
+    isComplete[i] = false;
+    processtable[i].wait = 0;       // Initialize wait time to 0
+    processtable[i].turnaround = 0; // Initialize turnaround time to 0
   }
-  for (int i = 0; i < PROCESS_COUNT; i++) {
-    if (i == 0) {
-      processInfoArray[i].startTime = CURRENT_TIME;
-      CURRENT_TIME += processtable[i].cpuburst;
-      processtable[i].wait = 0;
-      processtable[i].turnaround += CURRENT_TIME + 1;
-      sumT += processtable[i].turnaround;
-      processInfoArray[i].endTime = CURRENT_TIME; // First process ends
-    } else {
-      processtable[i].wait =
-          (processtable[i - 1].wait + processtable[i - 1].arrival +
-           processtable[i - 1].cpuburst) -
-          processtable[i]
-              .arrival; // formula for the calculation of process wait time
-      processtable[i].turnaround =
-          processtable[i].wait +
-          processtable[i].cpuburst; // calculates process turnaround time
-      sum += processtable[i].wait;
-      sumT += processtable[i].turnaround;
-      // the curent process starts when the previous one ends.
-      processInfoArray[i].startTime = processInfoArray[i - 1].endTime;
-      CURRENT_TIME += processtable[i].cpuburst;
-      processInfoArray[i].endTime = CURRENT_TIME;
+
+  while (completed < PROCESS_COUNT) {
+    for (int i = 0; i < PROCESS_COUNT; i++) {
+      if (!isComplete[i] && processtable[i].arrival <= CURRENT_TIME) {
+        // wait time for the process
+        processtable[i].wait = CURRENT_TIME - processtable[i].arrival;
+        // start and end times
+        processInfoArray[i].startTime = CURRENT_TIME;
+        CURRENT_TIME += processtable[i].cpuburst;
+        processInfoArray[i].endTime = CURRENT_TIME;
+        // turnaround time
+        processtable[i].turnaround =
+            processInfoArray[i].endTime - processtable[i].arrival;
+        sum += processtable[i].wait;
+        sumT += processtable[i].turnaround;
+        // Mark process as completed
+        isComplete[i] = true;
+        completed++;
+      }
     }
   }
+
   float AverageWaitTime = sum / PROCESS_COUNT;
   float AverageTurnaround = sumT / PROCESS_COUNT;
   PrintStatistics(processtable, AverageWaitTime, AverageTurnaround,
                   PROCESS_COUNT, 1);
 }
-
+// ROUND ROBIN
+// PREEMPTIVE SCEDULING
 void RR(Process *processtable, int PROCESS_COUNT, int quantum) {
   CURRENT_TIME = 0;
   float sum = 0;
@@ -144,7 +147,9 @@ void RR(Process *processtable, int PROCESS_COUNT, int quantum) {
   float avgT = sumT / PROCESS_COUNT;
   PrintStatistics(processtable, avgW, avgT, PROCESS_COUNT, 2);
 }
-
+// SHORTEST REMAINING BURST FIRST
+// has both PREEMPTIVE and NON-PREEMPTIVE versions but used
+// PREEMPTIVE
 void SRBF(Process *processtable, int PROCESS_COUNT) {
   CURRENT_TIME = 0;
   float sum_wait = 0;
@@ -183,11 +188,20 @@ void SRBF(Process *processtable, int PROCESS_COUNT) {
         isComplete[index] = true;
         processtable[index].turnaround =
             CURRENT_TIME - processtable[index].arrival;
-      }
-      if (processtable[index].wait == -1) {
         processtable[index].wait =
-            CURRENT_TIME - processtable[index].arrival - 1;
+            processtable[index].turnaround - processtable[index].cpuburst;
       }
+      // for (int i = 0; i < PROCESS_COUNT; i++) {
+      //   if (i != index && isComplete[i] != true &&
+      //       processtable[i].arrival <= CURRENT_TIME) {
+      //     processtable[i].wait += 1;
+      //   }
+      // }
+      // if (processtable[index].wait == -1) {
+      //   processtable[index].wait =
+      //       CURRENT_TIME - processtable[index].arrival - 1;
+      // }
+
     } else {
       // If no process is available, move time forward
       CURRENT_TIME++;
