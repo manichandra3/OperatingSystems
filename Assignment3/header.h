@@ -1,5 +1,5 @@
 // FCFS:
-//  Waiting Time(wt[i]) = at[i – 1] + bt[i – 1] + wt[i – 1] ) – at[i]
+//  Waiting Time(wt[i]) = at[i – 1] + bt[i – 1] + wt[i – 1]  – at[i]
 //  Turnaround Time(tu[i]) = wt[i] + bt[i]
 //  Average Waiting Time = (sum of all waiting time)/(Number of processes)
 #include "globals.h"
@@ -27,7 +27,7 @@ void FCFS(Process *processtable, int PROCESS_COUNT);
 void RR(Process *processtable, int PROCESS_COUNT, int quantum);
 void SRBF(Process *processtable, int PROCESS_COUNT);
 void PrintStatistics(Process *processtable, float avgWait, float avgTurn,
-                     int count, int flag);
+                     int count);
 
 // IMPLEMENTATIONS
 // FIRST COME FIRST SERVE
@@ -46,6 +46,9 @@ void FCFS(Process *processtable, int PROCESS_COUNT) {
     processtable[i].turnaround = 0; // Initialize turnaround time to 0
   }
   // Sceduling starts...
+  printf("---------------------------------------------\n");
+  printf("                   FCFS\n");
+  printf("---------------------------------------------\n");
   while (completed < PROCESS_COUNT) {
     for (int i = 0; i < PROCESS_COUNT; i++) {
       if (!isComplete[i] && processtable[i].arrival <= CURRENT_TIME) {
@@ -55,6 +58,9 @@ void FCFS(Process *processtable, int PROCESS_COUNT) {
         processInfoArray[i].startTime = CURRENT_TIME;
         CURRENT_TIME += processtable[i].cpuburst;
         processInfoArray[i].endTime = CURRENT_TIME;
+        // display status
+        printf("[%d-%d]\t%s\trunning\n", processInfoArray[i].startTime,
+               processInfoArray[i].endTime, processtable[i].name);
         // turnaround time
         processtable[i].turnaround =
             processInfoArray[i].endTime - processtable[i].arrival;
@@ -70,7 +76,7 @@ void FCFS(Process *processtable, int PROCESS_COUNT) {
   float AverageWaitTime = sum / PROCESS_COUNT;
   float AverageTurnaround = sumT / PROCESS_COUNT;
   PrintStatistics(processtable, AverageWaitTime, AverageTurnaround,
-                  PROCESS_COUNT, 1);
+                  PROCESS_COUNT);
 }
 // ROUND ROBIN
 // PREEMPTIVE SCEDULING
@@ -146,7 +152,7 @@ void RR(Process *processtable, int PROCESS_COUNT, int quantum) {
   }
   float avgW = sum / PROCESS_COUNT;
   float avgT = sumT / PROCESS_COUNT;
-  PrintStatistics(processtable, avgW, avgT, PROCESS_COUNT, 2);
+  PrintStatistics(processtable, avgW, avgT, PROCESS_COUNT);
 }
 // SHORTEST REMAINING BURST FIRST
 // has both PREEMPTIVE and NON-PREEMPTIVE versions but used
@@ -171,7 +177,7 @@ void SRBF(Process *processtable, int PROCESS_COUNT) {
     int index = -1;
     int shortest = INT_MAX;
 
-    // Find process with shortest remaining burst time
+    // Find process with the shortest remaining burst time
     for (int i = 0; i < PROCESS_COUNT; i++) {
       if (processtable[i].arrival <= CURRENT_TIME && !isComplete[i]) {
         if (processInfoArray[i].remainingBurst < shortest) {
@@ -218,20 +224,11 @@ void SRBF(Process *processtable, int PROCESS_COUNT) {
   for (int i = 0; i < PROCESS_COUNT; i++) {
     printf("%s waited for %d\n", processtable[i].name, processtable[i].wait);
   }
-  PrintStatistics(processtable, avg_wait, avg_turnaround, PROCESS_COUNT, 2);
+  PrintStatistics(processtable, avg_wait, avg_turnaround, PROCESS_COUNT);
 }
 
 void PrintStatistics(Process *processtable, float avgWait, float avgTurn,
-                     int count, int flag) {
-  if (flag == 1) {
-    printf("---------------------------------------------\n");
-    printf("                   FCFS\n");
-    printf("---------------------------------------------\n");
-    for (int i = 0; i < count; i++) {
-      printf("[%d-%d]\t%s\trunning\n", processInfoArray[i].startTime,
-             processInfoArray[i].endTime, processtable[i].name);
-    }
-  }
+                     int count) {
 
   printf("\nTurnaround Times: ");
   for (int i = 0; i < count; i++) {
