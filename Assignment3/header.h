@@ -45,7 +45,7 @@ void FCFS(Process *processtable, int PROCESS_COUNT) {
     processtable[i].wait = 0;       // Initialize wait time to 0
     processtable[i].turnaround = 0; // Initialize turnaround time to 0
   }
-
+  // Sceduling starts...
   while (completed < PROCESS_COUNT) {
     for (int i = 0; i < PROCESS_COUNT; i++) {
       if (!isComplete[i] && processtable[i].arrival <= CURRENT_TIME) {
@@ -92,6 +92,7 @@ void RR(Process *processtable, int PROCESS_COUNT, int quantum) {
     processtable[i].wait = -1;
     processtable[i].turnaround = -1;
   }
+  // Scheduling starts...
   printf("---------------------------------------------\n");
   printf("                    RR\n");
   printf("---------------------------------------------\n");
@@ -162,7 +163,10 @@ void SRBF(Process *processtable, int PROCESS_COUNT) {
     processtable[i].wait = -1;
     processtable[i].turnaround = -1;
   }
-
+  // Scheduling starts...
+  printf("---------------------------------------------\n");
+  printf("                   SRBF\n");
+  printf("---------------------------------------------\n");
   while (completed < PROCESS_COUNT) {
     int index = -1;
     int shortest = INT_MAX;
@@ -190,6 +194,8 @@ void SRBF(Process *processtable, int PROCESS_COUNT) {
             CURRENT_TIME - processtable[index].arrival;
         processtable[index].wait =
             processtable[index].turnaround - processtable[index].cpuburst;
+        sum_turnaround += processtable[index].turnaround;
+        sum_wait += processtable[index].wait;
       }
       // for (int i = 0; i < PROCESS_COUNT; i++) {
       //   if (i != index && isComplete[i] != true &&
@@ -207,9 +213,12 @@ void SRBF(Process *processtable, int PROCESS_COUNT) {
       CURRENT_TIME++;
     }
   }
+  float avg_wait = sum_wait / PROCESS_COUNT;
+  float avg_turnaround = sum_turnaround / PROCESS_COUNT;
   for (int i = 0; i < PROCESS_COUNT; i++) {
     printf("%s waited for %d\n", processtable[i].name, processtable[i].wait);
   }
+  PrintStatistics(processtable, avg_wait, avg_turnaround, PROCESS_COUNT, 2);
 }
 
 void PrintStatistics(Process *processtable, float avgWait, float avgTurn,
@@ -222,10 +231,6 @@ void PrintStatistics(Process *processtable, float avgWait, float avgTurn,
       printf("[%d-%d]\t%s\trunning\n", processInfoArray[i].startTime,
              processInfoArray[i].endTime, processtable[i].name);
     }
-  } else if (flag == 3) {
-    printf("---------------------------------------------\n");
-    printf("                   SRBF\n");
-    printf("---------------------------------------------\n");
   }
 
   printf("\nTurnaround Times: ");
