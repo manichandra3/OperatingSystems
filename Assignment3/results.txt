@@ -54,11 +54,35 @@ Therefore the turnaround time of each processes can be calculated by subtracting
 arrival time from the Current time.
 And their wait times can be obtained by turnaround time - cpu time upon completion.
 
-SRBF
-P0   0       3
-P1   1       6
-P2   5       4
-P3   7       3
+---------------------------------------------
+                   SRBF
+---------------------------------------------
+P0 at 1
+P0 at 2
+P0 at 3
+P1 at 4
+P1 at 5
+P1 at 6
+P1 at 7
+P1 at 8
+P1 at 9
+P3 at 10
+P3 at 11
+P3 at 12
+P2 at 13
+P2 at 14
+P2 at 15
+P2 at 16
+P0 waited for 0
+P1 waited for 2
+P2 waited for 7
+P3 waited for 2
+
+Turnaround Times: P0[3] P1[8] P2[11] P3[5]
+Wait Times: P0[0] P1[2] P2[7] P3[2]
+
+Average Turnaround Time: 6.750000
+Average Wait Time: 2.750000
 
 0-1 p0
 p1 arrives but p1 burst(=6) > p0 burst(=2)
@@ -73,9 +97,13 @@ p1 completed p3 has the next shortest burst time so p3 continues
 9-12
 p3 completed p2 is the only remaining process
 12-16
-Hence their wait times can also be infered
+Hence their wait times and average wait times can also be calculated
 wait times
 p0 0    = 0
 p1 3-1  = 2
 p2 12-5 = 7
 p3 9-7  = 2
+
+
+average wait time:
+SRBF<=FCFS<RR
