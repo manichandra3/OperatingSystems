@@ -77,10 +77,10 @@ void ReadProcessTable(char *filename) {
   printf("File Found!\n");
   printf("Reading from file...\n");
 
-  char p_name[3];
+  char p_name[4];
   int arrival, cpu_burst;
 
-  while (fscanf(file, "%2s %d %d", p_name, &arrival, &cpu_burst) == 3 &&
+  while (fscanf(file, "%3s %d %d", p_name, &arrival, &cpu_burst) == 3 &&
          PROCESS_COUNT < MAX_PROCESS) {
     processtable[PROCESS_COUNT].name = strdup(p_name);
     if (processtable[PROCESS_COUNT].name == NULL) {
@@ -106,8 +106,10 @@ void PrintProcessTable() {
   printf("Displaying From File...\n");
   if (sizeof(processtable) / sizeof(processtable[0]) == 0) {
     printf("Empty Table!\n");
+    return;
   }
   for (int i = 0; i < PROCESS_COUNT; i++) {
-    printf("%s\n", processtable[i].name);
+    printf("%s %d %d\n", processtable[i].name, processtable[i].arrival,
+           processtable[i].cpuburst);
   }
 }

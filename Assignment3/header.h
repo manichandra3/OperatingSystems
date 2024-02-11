@@ -20,7 +20,7 @@ typedef struct {
   int endTime;
 } ProcessInfo;
 // process stack
-ProcessInfo processInfoArray[20];
+ProcessInfo processInfoArray[1000];
 
 // Function Prototypes
 void FCFS(Process *processtable, int PROCESS_COUNT);
@@ -58,6 +58,7 @@ void FCFS(Process *processtable, int PROCESS_COUNT) {
         processInfoArray[i].startTime = CURRENT_TIME;
         CURRENT_TIME += processtable[i].cpuburst;
         processInfoArray[i].endTime = CURRENT_TIME;
+
         // display status
         printf("[%d-%d]\t%s\trunning\n", processInfoArray[i].startTime,
                processInfoArray[i].endTime, processtable[i].name);
@@ -84,76 +85,60 @@ void RR(Process *processtable, int PROCESS_COUNT, int quantum) {
   CURRENT_TIME = 0;
   float sum = 0;
   float sumT = 0;
-  unsigned int index = 0;
   unsigned int complete = 0;
-  // Initiating the processes
-  bool isArrived[PROCESS_COUNT];
-  bool isComplete[] = {0};
+
+  bool isComplete[PROCESS_COUNT];
+  bool noProcess = true;
   for (int i = 0; i < PROCESS_COUNT; i++) {
-    if (processtable[i].arrival == 0) {
-      isArrived[i] = 1;
-    }
+    isComplete[i] = false;
     processInfoArray[i].processId = i;
     processInfoArray[i].remainingBurst = processtable[i].cpuburst;
     processtable[i].wait = -1;
     processtable[i].turnaround = -1;
   }
-  // Scheduling starts...
+
   printf("---------------------------------------------\n");
   printf("                    RR\n");
   printf("---------------------------------------------\n");
-  while (complete < PROCESS_COUNT) { // until all process are complete
-    if (processtable[index].arrival <= CURRENT_TIME &&
-        processInfoArray[index].remainingBurst !=
-            0) { // process is not complete and has arrived
 
-      if (processInfoArray[index].remainingBurst - quantum <= 0 &&
-          isComplete[index] == 0) { // process about to complete
-
-        isComplete[index] = 1;
-        complete++; // completed the process indicated by its index
-        processInfoArray[index].startTime = CURRENT_TIME;
-        processInfoArray[index].processId = index;
-        CURRENT_TIME += processInfoArray[index]
-                            .remainingBurst; // update remaining burst time
-        processtable[index].turnaround =
-            CURRENT_TIME - processtable[index].arrival;
-        processtable[index].wait =
-            processtable[index].turnaround - processtable[index].cpuburst;
-        processInfoArray[index].remainingBurst = 0;
-        processInfoArray[index].endTime =
-            CURRENT_TIME; // this is where the process is finished process
-        sum += processtable[index].wait;
-        sumT += processtable[index].turnaround;
-
-        if (processtable[index].wait == -1) {
-          processtable[index].wait =
-              CURRENT_TIME; // the process default wait never updated => waiting
-                            // all this time.
+  while (complete < PROCESS_COUNT) {
+    noProcess = true;
+    for (int i = 0; i < PROCESS_COUNT; i++) {
+      if (processtable[i].arrival <= CURRENT_TIME && !isComplete[i]) {
+        noProcess = false;
+        if (processInfoArray[i].remainingBurst > 0) {
+          processInfoArray[i].startTime = CURRENT_TIME;
+          if (processInfoArray[i].remainingBurst <= quantum) {
+            CURRENT_TIME += processInfoArray[i].remainingBurst;
+            processInfoArray[i].remainingBurst = 0;
+            processInfoArray[i].endTime = CURRENT_TIME;
+            processtable[i].turnaround =
+                processInfoArray[i].endTime - processtable[i].arrival;
+            processtable[i].wait =
+                processtable[i].turnaround - processtable[i].cpuburst;
+            sum += processtable[i].wait;
+            sumT += processtable[i].turnaround;
+            isComplete[i] = true;
+            complete++;
+          } else {
+            CURRENT_TIME += quantum;
+            processInfoArray[i].remainingBurst -= quantum;
+          }
+          printf("[%d-%d]\t%s\n", processInfoArray[i].startTime,
+                 processInfoArray[i].endTime,
+                 processtable[processInfoArray[i].processId].name);
         }
-      } else if (processInfoArray[index].remainingBurst - quantum >= 0 &&
-                 isComplete[index] == 0) {
-        processInfoArray[index].startTime = CURRENT_TIME;
-        CURRENT_TIME += quantum;
-        processInfoArray[index].processId = index;
-        processInfoArray[index].remainingBurst -= quantum;
-        processInfoArray[index].endTime = CURRENT_TIME;
       }
-      printf("[%d-%d]\t%s\trunning\n", processInfoArray[index].startTime,
-             processInfoArray[index].endTime,
-             processtable[processInfoArray[index].processId].name);
     }
-
-    if (index == PROCESS_COUNT - 1) {
-      index = 0;
-    } else {
-      index += 1;
+    if (noProcess) {
+      CURRENT_TIME++;
     }
   }
   float avgW = sum / PROCESS_COUNT;
   float avgT = sumT / PROCESS_COUNT;
   PrintStatistics(processtable, avgW, avgT, PROCESS_COUNT);
 }
+
 // SHORTEST REMAINING BURST FIRST
 // has both PREEMPTIVE and NON-PREEMPTIVE versions but used
 // PREEMPTIVE

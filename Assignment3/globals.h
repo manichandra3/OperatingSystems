@@ -1,7 +1,7 @@
 
 #ifndef GLOBALS_H
 #define GLOBALS_H
-#define MAX_PROCESS 20
+#define MAX_PROCESS 100
 typedef struct {
   char *name;
   int arrival;
