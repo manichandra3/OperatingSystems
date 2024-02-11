@@ -20,7 +20,7 @@ typedef struct {
   int endTime;
 } ProcessInfo;
 // process stack
-ProcessInfo processInfoArray[1000];
+ProcessInfo processInfoArray[10000];
 
 // Function Prototypes
 void FCFS(Process *processtable, int PROCESS_COUNT);
@@ -114,8 +114,7 @@ void RR(Process *processtable, int PROCESS_COUNT, int quantum) {
             processInfoArray[i].endTime = CURRENT_TIME;
             processtable[i].turnaround =
                 processInfoArray[i].endTime - processtable[i].arrival;
-            processtable[i].wait =
-                processtable[i].turnaround - processtable[i].cpuburst;
+            processtable[i].wait = CURRENT_TIME - processtable[i].arrival;
             sum += processtable[i].wait;
             sumT += processtable[i].turnaround;
             isComplete[i] = true;
@@ -131,6 +130,7 @@ void RR(Process *processtable, int PROCESS_COUNT, int quantum) {
       }
     }
     if (noProcess) {
+      printf("no process\n");
       CURRENT_TIME++;
     }
   }
@@ -144,6 +144,7 @@ void RR(Process *processtable, int PROCESS_COUNT, int quantum) {
 // PREEMPTIVE
 void SRBF(Process *processtable, int PROCESS_COUNT) {
   CURRENT_TIME = 0;
+  int sumBT = 0;
   float sum_wait = 0;
   float sum_turnaround = 0;
   int completed = 0;
@@ -179,7 +180,9 @@ void SRBF(Process *processtable, int PROCESS_COUNT) {
 
       // Check if the process is completed
       if (processInfoArray[index].remainingBurst == 0) {
+
         completed++;
+        processInfoArray[index].endTime = CURRENT_TIME;
         isComplete[index] = true;
         processtable[index].turnaround =
             CURRENT_TIME - processtable[index].arrival;
@@ -187,28 +190,16 @@ void SRBF(Process *processtable, int PROCESS_COUNT) {
             processtable[index].turnaround - processtable[index].cpuburst;
         sum_turnaround += processtable[index].turnaround;
         sum_wait += processtable[index].wait;
+        sumBT += processtable[index].cpuburst;
       }
-      // for (int i = 0; i < PROCESS_COUNT; i++) {
-      //   if (i != index && isComplete[i] != true &&
-      //       processtable[i].arrival <= CURRENT_TIME) {
-      //     processtable[i].wait += 1;
-      //   }
-      // }
-      // if (processtable[index].wait == -1) {
-      //   processtable[index].wait =
-      //       CURRENT_TIME - processtable[index].arrival - 1;
-      // }
-
     } else {
       // If no process is available, move time forward
+      printf("no process\n");
       CURRENT_TIME++;
     }
   }
   float avg_wait = sum_wait / PROCESS_COUNT;
   float avg_turnaround = sum_turnaround / PROCESS_COUNT;
-  for (int i = 0; i < PROCESS_COUNT; i++) {
-    printf("%s waited for %d\n", processtable[i].name, processtable[i].wait);
-  }
   PrintStatistics(processtable, avg_wait, avg_turnaround, PROCESS_COUNT);
 }
 
