@@ -107,3 +107,10 @@ p3 9-7  = 2
 
 average wait time:
 SRBF<=FCFS<RR
+
+The calculation of three algorithms shows the different average waiting time.
+The FCFS is better for a small burst time. The SJF is better if the process
+comes to processor simultaneously. The last algorithm, Round Robin, is better
+to adjust the average waiting time desired. Round Robin quantum time will set
+it towards more SJF or FCFS value. All algorithms are good, but the speed of the
+process depends on the processor load.

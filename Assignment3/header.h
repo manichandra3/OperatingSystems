@@ -114,7 +114,8 @@ void RR(Process *processtable, int PROCESS_COUNT, int quantum) {
             processInfoArray[i].endTime = CURRENT_TIME;
             processtable[i].turnaround =
                 processInfoArray[i].endTime - processtable[i].arrival;
-            processtable[i].wait = CURRENT_TIME - processtable[i].arrival;
+            processtable[i].wait =
+                processtable[i].turnaround - processtable[i].cpuburst;
             sum += processtable[i].wait;
             sumT += processtable[i].turnaround;
             isComplete[i] = true;
