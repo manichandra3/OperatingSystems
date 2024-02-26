@@ -9,9 +9,10 @@ mutex and semaphore. I have used 5 producers and 5 consumers to demonstrate the
 solution. You can always play with these values.
 */
 
-#define MaxItems                                                               \
-  5 // Maximum items a producer can produce or a consumer can consume
-#define BufferSize 5 // Size of the buffer
+// Maximum items a producer can produce or a consumer can consume
+#define MaxItems 5
+// Size of the buffer
+#define BufferSize 5
 unsigned int TimesConsumed = 0;
 unsigned int TimesProduced = 0;
 
@@ -56,9 +57,8 @@ int main() {
   pthread_mutex_init(&mutex, NULL);
   sem_init(&empty, 0, BufferSize);
   sem_init(&full, 0, 0);
-
-  int a[5] = {1, 2, 3, 4,
-              5}; // Just used for numbering the producer and consumer
+  // Just used for numbering the producer and consumer
+  int a[5] = {1, 2, 3, 4, 5};
 
   for (int i = 0; i < 5; i++) {
     pthread_create(&pro[i], NULL, (void *)producer, (void *)&a[i]);
