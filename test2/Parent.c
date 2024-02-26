@@ -36,10 +36,11 @@ int main(int argc, char *argv[]) {
 
       int status;
       if (waitpid(pid, &status, 0) == -1) {
-        perror("waitpid");
+        perror("waitpid"); // wait for child process termination.
         return 1;
       }
-      if (WIFEXITED(status)) {
+      if (WIFEXITED(status)) { // queries the process to check if the child
+                               // exited normally.
         printf("All the prime numbers between <%d> and <%d> are printed\n",
                start, end);
       }
