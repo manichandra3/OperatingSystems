@@ -8,6 +8,20 @@
 
 jmp_buf env;
 
+int is_prime(int num) {
+  if (num <= 1)
+    return 0;
+  if (num <= 3)
+    return 1;
+  if (num % 2 == 0 || num % 3 == 0)
+    return 0;
+  for (int i = 5; i * i <= num; i += 6) {
+    if (num % i == 0 || num % (i + 2) == 0)
+      return 0;
+  }
+  return 1;
+}
+
 void handler(int signum) { longjmp(env, 1); }
 
 int main(int argc, char *argv[]) {
@@ -26,8 +40,11 @@ int main(int argc, char *argv[]) {
     perror("fork");
     return 1;
   } else if (pid == 0) { // Child process
-    execl("./child", "child", argv[1], argv[2], NULL);
-    perror("execl");
+    for (int i = start; i <= end; i++) {
+      if (is_prime(i)) {
+        printf("%d\n", i);
+      }
+    }
     exit(1);
   } else { // Parent process
     if (setjmp(env) == 0) {
