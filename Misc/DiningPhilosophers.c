@@ -6,12 +6,14 @@
 
 pthread_t *philosophers;
 pthread_mutex_t *forks;
+pthread_mutex_t rice_mutex; // access to rice is also a mutex
 
 int philosophers_count;
+int rice = 50;
 
-void eat(int philosopher_id) {
+void eat(int philosopher_id, int rice_left) {
   printf("Philosopher %d is eating\n", philosopher_id + 1);
-  sleep(1 + rand() % 3); // Reduce eating time for quicker testing
+  printf("%d Rice left\n", rice_left);
 }
 
 void *philosopher(void *arg) {
@@ -21,34 +23,40 @@ void *philosopher(void *arg) {
 
   while (1) {
     printf("Philosopher %d is thinking\n", philosopher_id + 1);
-    sleep(1 + rand() % 3); // Introduce some randomness in thinking time
+    sleep(1 + rand() % 3); // randomn thinking time to prevent starvation
 
-    // Try to pick up both forks
+    pthread_mutex_lock(&rice_mutex);
+    if (rice == 0) {
+      printf("0 Rice left\n");
+      pthread_mutex_unlock(&rice_mutex);
+      break;
+    }
+    pthread_mutex_unlock(&rice_mutex);
+
+    // both forks
     pthread_mutex_lock(&forks[left_fork]);
     printf("Philosopher %d picked up fork %d\n", philosopher_id + 1,
            left_fork + 1);
 
-    if (pthread_mutex_trylock(&forks[right_fork]) != 0) {
-      // Failed to acquire the right fork, release the left fork and continue
-      // thinking
-      printf("Philosopher %d failed to pick up fork %d, releasing fork %d\n",
-             philosopher_id + 1, right_fork + 1, left_fork + 1);
-      pthread_mutex_unlock(&forks[left_fork]);
-      continue;
-    }
+    pthread_mutex_lock(&forks[right_fork]);
     printf("Philosopher %d picked up fork %d\n", philosopher_id + 1,
            right_fork + 1);
 
-    // Both forks acquired, start eating
-    eat(philosopher_id);
+    pthread_mutex_lock(&rice_mutex);
+    if (rice != 0) {
+      // eating
+      eat(philosopher_id, rice);
+      rice--;
 
-    // Release forks
-    pthread_mutex_unlock(&forks[left_fork]);
-    printf("Philosopher %d put down fork %d\n", philosopher_id + 1,
-           left_fork + 1);
-    pthread_mutex_unlock(&forks[right_fork]);
-    printf("Philosopher %d put down fork %d\n", philosopher_id + 1,
-           right_fork + 1);
+      // release
+      pthread_mutex_unlock(&forks[left_fork]);
+      printf("Philosopher %d put down fork %d\n", philosopher_id + 1,
+             left_fork + 1);
+      pthread_mutex_unlock(&forks[right_fork]);
+      printf("Philosopher %d put down fork %d\n", philosopher_id + 1,
+             right_fork + 1);
+    }
+    pthread_mutex_unlock(&rice_mutex);
   }
 
   return NULL;
@@ -64,7 +72,7 @@ int main(void) {
   forks =
       (pthread_mutex_t *)malloc(philosophers_count * sizeof(pthread_mutex_t));
 
-  // Initialize mutexes for forks
+  // mutexes for forks
   for (int i = 0; i < philosophers_count; ++i) {
     if (pthread_mutex_init(&forks[i], NULL) != 0) {
       fprintf(stderr, "Error initializing fork mutex %d\n", i + 1);
@@ -72,7 +80,13 @@ int main(void) {
     }
   }
 
-  // Create philosopher threads
+  // mutex for rice
+  if (pthread_mutex_init(&rice_mutex, NULL) != 0) {
+    fprintf(stderr, "Error initializing rice mutex\n");
+    exit(EXIT_FAILURE);
+  }
+
+  // phil threads
   for (int i = 0; i < philosophers_count; ++i) {
     int *arg = malloc(sizeof(*arg));
     if (arg == NULL) {
@@ -86,19 +100,19 @@ int main(void) {
     }
   }
 
-  // Wait for philosopher threads to finish
+  // wait for thread termination
   for (int i = 0; i < philosophers_count; ++i) {
     if (pthread_join(philosophers[i], NULL) != 0) {
       fprintf(stderr, "Error joining philosopher thread %d\n", i + 1);
     }
   }
 
-  // Clean up resources
   free(philosophers);
   for (int i = 0; i < philosophers_count; ++i) {
     pthread_mutex_destroy(&forks[i]);
   }
   free(forks);
+  pthread_mutex_destroy(&rice_mutex);
 
   return EXIT_SUCCESS;
 }
