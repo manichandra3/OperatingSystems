@@ -26,7 +26,7 @@ pthread_mutex_t mutex;
 void *producer(void *pno) {
   int item;
   for (int i = 0; i < MaxItems; i++) {
-    item = rand(); // Produce an random item
+    item = rand(); // Produce
     sem_wait(&empty);
     pthread_mutex_lock(&mutex);
     buffer[in] = item;
@@ -37,6 +37,7 @@ void *producer(void *pno) {
     pthread_mutex_unlock(&mutex);
     sem_post(&full);
   }
+  return NULL;
 }
 void *consumer(void *cno) {
   for (int i = 0; i < MaxItems; i++) {
@@ -49,6 +50,7 @@ void *consumer(void *cno) {
     pthread_mutex_unlock(&mutex);
     sem_post(&empty);
   }
+  return NULL;
 }
 
 int main() {
@@ -57,7 +59,6 @@ int main() {
   pthread_mutex_init(&mutex, NULL);
   sem_init(&empty, 0, BufferSize);
   sem_init(&full, 0, 0);
-  // Just used for numbering the producer and consumer
   int a[5] = {1, 2, 3, 4, 5};
 
   for (int i = 0; i < 5; i++) {
@@ -73,7 +74,7 @@ int main() {
   for (int i = 0; i < 5; i++) {
     pthread_join(con[i], NULL);
   }
-  printf("Producer was invoked %d times", TimesProduced);
+  printf("Producer was invoked %d times\n", TimesProduced);
   printf("Consumer was invoked %d times", TimesConsumed);
   pthread_mutex_destroy(&mutex);
   sem_destroy(&empty);

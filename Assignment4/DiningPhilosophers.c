@@ -6,7 +6,7 @@
 
 pthread_t *philosophers;
 pthread_mutex_t *forks;
-pthread_mutex_t rice_mutex;
+pthread_mutex_t rice_mutex; // access to rice is also a mutex
 
 int philosophers_count;
 int rice = 50;
@@ -23,7 +23,7 @@ void *philosopher(void *arg) {
 
   while (1) {
     printf("Philosopher %d is thinking\n", philosopher_id + 1);
-    sleep(1 + rand() % 3);
+    sleep(1 + rand() % 3); // randomn thinking time to prevent starvation
 
     pthread_mutex_lock(&rice_mutex);
     if (rice == 0) {

@@ -39,25 +39,25 @@ int main(int argc, char *argv[]) {
   if (pid == -1) {
     perror("fork");
     return 1;
-  } else if (pid == 0) { // Child process
+  } else if (pid == 0) { // C
     for (int i = start; i <= end; i++) {
       if (is_prime(i)) {
         printf("%d\n", i);
       }
     }
     exit(1);
-  } else { // Parent process
+  } else { // P
     if (setjmp(env) == 0) {
       signal(SIGALRM, handler);
       alarm(timeout);
 
       int status;
       if (waitpid(pid, &status, 0) == -1) {
-        perror("waitpid"); // wait for child process termination.
+        perror("waitpid");
         return 1;
       }
-      if (WIFEXITED(status)) { // queries the process to check if the child
-                               // exited normally.
+      if (WIFEXITED(status)) {
+        // en.
         printf("All the prime numbers between <%d> and <%d> are printed\n",
                start, end);
       }
