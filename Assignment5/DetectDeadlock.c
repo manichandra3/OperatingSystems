@@ -4,7 +4,8 @@
 #define MAX_PROCESSES 10
 #define MAX_RESOURCES 10
 
-int n, r;
+int n;
+int r;
 int max_claim[MAX_PROCESSES][MAX_RESOURCES];
 int allocation[MAX_PROCESSES][MAX_RESOURCES];
 int avail[MAX_RESOURCES];
@@ -20,18 +21,6 @@ void input_data() {
     for (int j = 0; j < r; j++) {
       scanf("%d", &max_claim[i][j]);
     }
-  }
-
-  printf("Enter the Allocation Matrix:\n");
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < r; j++) {
-      scanf("%d", &allocation[i][j]);
-    }
-  }
-
-  printf("Enter the Available Resources:\n");
-  for (int j = 0; j < r; j++) {
-    scanf("%d", &avail[j]);
   }
 }
 
@@ -87,7 +76,6 @@ bool is_safe_state() {
       break;
     }
   }
-
   for (int i = 0; i < n; i++) {
     if (!finish[i]) {
       return false;
@@ -109,5 +97,5 @@ int main() {
   input_data();
   show_data();
   deadlock_detection();
-  return 1;
+  return 0;
 }
